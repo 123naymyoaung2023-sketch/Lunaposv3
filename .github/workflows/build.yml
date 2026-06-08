@@ -1,0 +1,59 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK with Capacitor
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ☕ Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: ⚙️ Prepare Capacitor Project
+        run: |
+          echo "=== 📂 Checking files in GitHub Server ==="
+          ls -la
+          echo "=========================================="
+          
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          
+          mkdir -p src
+          cp index.html src/index.html
+          
+          npx cap init "Luna POS" "com.lunapos.app" --web-dir src
+
+      - name: 🤖 Add Android Platform
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: 🔨 Build APK
+        working-directory: ./android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: 🚀 Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LunaPOS-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
