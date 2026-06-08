@@ -28,10 +28,6 @@ jobs:
 
       - name: ⚙️ Prepare Capacitor Project
         run: |
-          echo "=== 📂 Checking files in GitHub Server ==="
-          ls -la
-          echo "=========================================="
-          
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
           
@@ -44,6 +40,22 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+
+      - name: 🔧 Fix Kotlin Duplicate Classes Conflict
+        run: |
+          cat <<EOF >> android/app/build.gradle
+          
+          dependencies {
+              modules {
+                  module("org.jetbrains.kotlin:kotlin-stdlib-jdk7") {
+                      replacedBy("org.jetbrains.kotlin:kotlin-stdlib", "kotlin-stdlib-jdk7 is now part of kotlin-stdlib")
+                  }
+                  module("org.jetbrains.kotlin:kotlin-stdlib-jdk8") {
+                      replacedBy("org.jetbrains.kotlin:kotlin-stdlib", "kotlin-stdlib-jdk8 is now part of kotlin-stdlib")
+                  }
+              }
+          }
+          EOF
 
       - name: 🛠️ Setup Gradle
         uses: gradle/actions/setup-gradle@v4
