@@ -28,10 +28,6 @@ jobs:
 
       - name: ⚙️ Prepare Capacitor Project
         run: |
-          echo "=== 📂 Checking files in GitHub Server ==="
-          ls -la
-          echo "=========================================="
-          
           npm init -y
           npm install @capacitor/core @capacitor/cli @capacitor/android
           
@@ -44,6 +40,11 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+
+      - name: 🛠️ Fix Kotlin Version
+        run: |
+          # Java 21 နှင့် အဆင်ပြေစေရန် Kotlin version အား 1.9.24 သို့ အလိုအလျောက် ပြောင်းပေးခြင်း
+          sed -i "s/kotlin_version = .*/kotlin_version = '1.9.24'/g" android/variables.gradle
 
       - name: 🔨 Build APK
         working-directory: ./android
